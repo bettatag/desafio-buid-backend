@@ -34,8 +34,10 @@ export default tseslint.config(
         },
         node: {
           extensions: ['.js', '.jsx', '.ts', '.tsx'],
+          moduleDirectory: ['node_modules', 'src/'],
         },
       },
+      'import/ignore': ['@nestjs/config'],
     },
   },
   {
@@ -56,7 +58,6 @@ export default tseslint.config(
         allowTypedFunctionExpressions: true,
       }],
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-      '@typescript-eslint/prefer-const': 'error',
       '@typescript-eslint/no-var-requires': 'error',
       
       // Import rules (Airbnb style)
@@ -96,6 +97,16 @@ export default tseslint.config(
       'max-len': ['error', { code: 100, ignoreUrls: true }],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
+    },
+  },
+  // Test files configuration
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', 'test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      'import/no-default-export': 'off',
+      'no-console': 'off',
     },
   },
 );

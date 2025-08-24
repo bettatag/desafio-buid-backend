@@ -16,7 +16,10 @@ export class AppController {
       this.logger.log(`Successfully processed request - Response: ${result}`);
       return result;
     } catch (error) {
-      this.logger.error('Error processing GET / request', error.stack);
+      this.logger.error(
+        'Error processing GET / request',
+        error instanceof Error ? error.stack : String(error),
+      );
       throw error;
     }
   }
