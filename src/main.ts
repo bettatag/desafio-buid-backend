@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
@@ -20,12 +21,39 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  // Swagger configuration
+  const config = new DocumentBuilder()
+    .setTitle('Desafio BUID - Backend API')
+    .setDescription('API documentation for the Desafio BUID - Backend application')
+    .setVersion('1.0')
+    .addTag('API')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/swagger', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
   const logger = new Logger('Bootstrap');
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 
   logger.log(`Application is running on http://localhost:${port}`);
+  logger.log(`Swagger documentation available at http://localhost:${port}/api/swagger`);
 }
 
 bootstrap().catch((error) => {
