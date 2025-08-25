@@ -65,4 +65,5 @@ export class GlobalGuard implements CanActivate {
     return this.validateAccessTokenService.exec(request);
   }
 }
+
  */

@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, Inject } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { IS_PUBLIC_KEY } from '../../shared/decorators/is-public.decorator';
+import { IS_PUBLIC_KEY } from '../../../../shared/decorators/is-public.decorator';
 
 @Injectable()
 export class GlobalGuard implements CanActivate {

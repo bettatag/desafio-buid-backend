@@ -3,8 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { GlobalGuard } from './auth/guards/global.guard';
+import { AuthModule } from './modules/auth/auth.module';
+import { GlobalGuard } from './modules/auth/presentation/guards/global.guard';
+import { EvolutionModule } from './modules/evolution/evolution.module';
 import { SharedModule } from './shared/shared.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { SharedModule } from './shared/shared.module';
     }),
     SharedModule,
     AuthModule,
+    EvolutionModule,
   ],
   controllers: [AppController],
   providers: [
