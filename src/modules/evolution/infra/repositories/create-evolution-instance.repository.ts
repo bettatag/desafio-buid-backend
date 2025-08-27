@@ -1,7 +1,7 @@
 import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { PRISMA_CLIENT_TOKEN } from 'src/shared/constants/di-constants';
-import { IDbService } from 'src/shared/db/interfaces/db-service.interface';
-import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
+import { PRISMA_CLIENT_TOKEN } from '../../../../shared/constants/di-constants';
+import { IDbService } from '../../../../shared/db/interfaces/db-service.interface';
+import { ERROR_MESSAGES } from '../../../../shared/errors/error-messages';
 import { ICreateInstanceInput } from '../../domain/contracts/input/create-instance-input.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instance.entity';

@@ -11,7 +11,10 @@ export class InstanceManagementRepository implements IInstanceManagementReposito
     private readonly dbService: IDbService,
   ) {}
 
-  async findAll(filters?: { instanceName?: string; status?: string }): Promise<EvolutionInstanceEntity[]> {
+  async findAll(filters?: {
+    instanceName?: string;
+    status?: string;
+  }): Promise<EvolutionInstanceEntity[]> {
     // Mock implementation - em um cenário real, isso buscaria do banco de dados
     const mockInstances: EvolutionInstanceEntity[] = [
       new EvolutionInstanceEntity(
@@ -33,7 +36,7 @@ export class InstanceManagementRepository implements IInstanceManagementReposito
           read_messages: true,
           read_status: true,
           sync_full_history: false,
-        }
+        },
       ),
       new EvolutionInstanceEntity(
         {
@@ -54,21 +57,21 @@ export class InstanceManagementRepository implements IInstanceManagementReposito
           read_messages: false,
           read_status: false,
           sync_full_history: true,
-        }
+        },
       ),
     ];
 
     let filteredInstances = mockInstances;
 
     if (filters?.instanceName) {
-      filteredInstances = filteredInstances.filter(instance => 
-        instance.instance.instanceName.includes(filters.instanceName!)
+      filteredInstances = filteredInstances.filter((instance) =>
+        instance.instance.instanceName.includes(filters.instanceName!),
       );
     }
 
     if (filters?.status) {
-      filteredInstances = filteredInstances.filter(instance => 
-        instance.instance.status === filters.status
+      filteredInstances = filteredInstances.filter(
+        (instance) => instance.instance.status === filters.status,
       );
     }
 
@@ -77,14 +80,15 @@ export class InstanceManagementRepository implements IInstanceManagementReposito
 
   async findByName(instanceName: string): Promise<EvolutionInstanceEntity | null> {
     const instances = await this.findAll();
-    return instances.find(instance => instance.instance.instanceName === instanceName) || null;
+    return instances.find((instance) => instance.instance.instanceName === instanceName) || null;
   }
 
   async connect(instanceName: string): Promise<{ status: string; qrcode?: string }> {
     // Mock implementation - em um cenário real, isso iniciaria a conexão
     return {
       status: 'connecting',
-      qrcode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      qrcode:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
     };
   }
 
@@ -121,10 +125,6 @@ export class InstanceManagementRepository implements IInstanceManagementReposito
       ...settings,
     };
 
-    return new EvolutionInstanceEntity(
-      instance.instance,
-      instance.hash,
-      updatedSettings
-    );
+    return new EvolutionInstanceEntity(instance.instance, instance.hash, updatedSettings);
   }
 }

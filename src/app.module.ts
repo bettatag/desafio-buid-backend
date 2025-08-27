@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { GlobalGuard } from './modules/auth/presentation/guards/global.guard';
 import { EvolutionModule } from './modules/evolution/evolution.module';
+import { OpenAIModule } from './modules/openai/openai.module';
 import { SharedModule } from './shared/shared.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { SharedModule } from './shared/shared.module';
     SharedModule,
     AuthModule,
     EvolutionModule,
+    OpenAIModule,
   ],
   controllers: [AppController],
   providers: [
