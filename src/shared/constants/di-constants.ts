@@ -38,3 +38,7 @@ export const OPENAI_CREDS_USE_CASE_TOKEN = Symbol('OpenAICredsUseCase');
 export const OPENAI_CREDS_REPOSITORY_TOKEN = Symbol('OpenAICredsRepository');
 export const OPENAI_SETTINGS_USE_CASE_TOKEN = Symbol('OpenAISettingsUseCase');
 export const OPENAI_SETTINGS_REPOSITORY_TOKEN = Symbol('OpenAISettingsRepository');
+
+// Conversation Module
+export const CONVERSATION_USE_CASE_TOKEN = Symbol('ConversationUseCase');
+export const CONVERSATION_REPOSITORY_TOKEN = Symbol('ConversationRepository');

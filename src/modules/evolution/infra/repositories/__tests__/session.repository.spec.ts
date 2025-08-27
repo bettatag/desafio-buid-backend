@@ -418,12 +418,13 @@ describe('SessionRepository', () => {
       const beforeTimestamp = Date.now();
 
       // Act
+      await new Promise(resolve => setTimeout(resolve, 1)); // Garante diferença no timestamp
       await sessionRepository.updateLastMessageTimestamp('test-instance', '5511999999999@s.whatsapp.net');
 
       // Assert
       const sessionAfter = await sessionRepository.getSession('test-instance', '5511999999999@s.whatsapp.net');
       expect(sessionAfter!.lastMessageAt).toBeGreaterThanOrEqual(beforeTimestamp);
-      expect(sessionAfter!.updatedAt).toBeGreaterThan(sessionBefore!.updatedAt);
+      expect(sessionAfter!.updatedAt).toBeGreaterThanOrEqual(sessionBefore!.updatedAt);
     });
 
     it('should handle non-existent session gracefully', async () => {

@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { GlobalGuard } from './modules/auth/presentation/guards/global.guard';
 import { EvolutionModule } from './modules/evolution/evolution.module';
 import { OpenAIModule } from './modules/openai/openai.module';
+import { ConversationModule } from './modules/conversation/conversation.module';
 import { SharedModule } from './shared/shared.module';
 import { CustomThrottlerGuard } from './shared/guards/throttler.guard';
 
@@ -28,6 +29,7 @@ import { CustomThrottlerGuard } from './shared/guards/throttler.guard';
     AuthModule,
     EvolutionModule,
     OpenAIModule,
+    ConversationModule,
   ],
   controllers: [AppController],
   providers: [
