@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { MESSAGE_REPOSITORY_TOKEN } from '../../../../shared/constants/di-constants';
 import { IMessageRepository } from '../../domain/repositories/message-repository.contract';
-import { IMessageUseCase } from '../contracts/Services/message-usecase.contract';
+import { IMessageUseCase } from '../contracts/services/message-usecase.contract';
 import { ISendTextMessageInput, ISendMediaMessageInput, IWebhookEventInput } from '../../domain/contracts/input/send-message-input.contract';
 import { ISendMessageOutput, IMessageOutput } from '../../domain/contracts/output/message-output.contract';
 

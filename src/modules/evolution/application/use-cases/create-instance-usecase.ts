@@ -4,7 +4,7 @@ import { ERROR_MESSAGES } from '../../../../shared/errors/error-messages';
 import { ICreateInstanceInput } from '../../domain/contracts/input/create-instance-input.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { ICreateEvolutionInstanceRepository } from '../../domain/repositories/create-evolution-instance-repository.contract';
-import { ICreateInstanceUseCase } from '../contracts/Services/create-instance-usecase.contract';
+import { ICreateInstanceUseCase } from '../contracts/services/create-instance-usecase.contract';
 
 @Injectable()
 export class CreateEvolutionInstanceUseCase implements ICreateInstanceUseCase {

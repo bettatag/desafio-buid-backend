@@ -5,7 +5,7 @@ import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instanc
 import {
   IFetchInstancesInput,
   IFetchInstancesUseCase,
-} from '../contracts/Services/fetch-instances-usecase.contract';
+} from '../contracts/services/fetch-instances-usecase.contract';
 
 @Injectable()
 export class FetchInstancesUseCase implements IFetchInstancesUseCase {

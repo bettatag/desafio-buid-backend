@@ -11,7 +11,7 @@ import {
   IRestartInstanceInput,
   IGetSettingsInput,
   IUpdateSettingsInput,
-} from '../contracts/Services/instance-management-usecase.contract';
+} from '../contracts/services/instance-management-usecase.contract';
 
 @Injectable()
 export class InstanceManagementUseCase implements IInstanceManagementUseCase {

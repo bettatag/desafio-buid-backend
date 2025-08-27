@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { SESSION_REPOSITORY_TOKEN } from '../../../../shared/constants/di-constants';
 import { ISessionRepository } from '../../domain/repositories/session-repository.contract';
-import { ISessionUseCase } from '../contracts/Services/session-usecase.contract';
+import { ISessionUseCase } from '../contracts/services/session-usecase.contract';
 import { ICreateSessionInput, IChangeSessionStatusInput, IGetSessionsInput, IUpdateSessionContextInput } from '../../domain/contracts/input/session-input.contract';
 import { ISessionOutput, ISessionListOutput } from '../../domain/contracts/output/session-output.contract';
 

@@ -3,7 +3,7 @@ import { INSTANCE_MANAGEMENT_REPOSITORY_TOKEN } from '../../../../../shared/cons
 import { IInstanceManagementRepository } from '../../../domain/repositories/instance-management-repository.contract';
 import { EvolutionInstanceEntity } from '../../../domain/entities/evolution-instance.entity';
 import { FetchInstancesUseCase } from '../fetch-instances-usecase';
-import { IFetchInstancesInput } from '../../contracts/Services/fetch-instances-usecase.contract';
+import { IFetchInstancesInput } from '../../contracts/services/fetch-instances-usecase.contract';
 
 describe('FetchInstancesUseCase', () => {
   let useCase: FetchInstancesUseCase;

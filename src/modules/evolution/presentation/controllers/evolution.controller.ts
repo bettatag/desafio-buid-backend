@@ -33,11 +33,11 @@ import {
 } from 'src/shared/constants/di-constants';
 import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
-import { ICreateInstanceUseCase } from '../../application/contracts/Services/create-instance-usecase.contract';
-import { IFetchInstancesUseCase } from '../../application/contracts/Services/fetch-instances-usecase.contract';
-import { IInstanceManagementUseCase } from '../../application/contracts/Services/instance-management-usecase.contract';
-import { IMessageUseCase } from '../../application/contracts/Services/message-usecase.contract';
-import { ISessionUseCase } from '../../application/contracts/Services/session-usecase.contract';
+import { ICreateInstanceUseCase } from '../../application/contracts/services/create-instance-usecase.contract';
+import { IFetchInstancesUseCase } from '../../application/contracts/services/fetch-instances-usecase.contract';
+import { IInstanceManagementUseCase } from '../../application/contracts/services/instance-management-usecase.contract';
+import { IMessageUseCase } from '../../application/contracts/services/message-usecase.contract';
+import { ISessionUseCase } from '../../application/contracts/services/session-usecase.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instance.entity';
 import { CreateEvolutionInstanceDto } from '../dtos/create-evolution-intance.dto';
