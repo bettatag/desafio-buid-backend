@@ -6,12 +6,12 @@ import { EvolutionController } from './presentation/controllers/evolution.contro
 @Module({
   controllers: [EvolutionController],
   providers: [
-    CreateEvolutionInstanceUseCase,
     PrismaService,
     {
       provide: CREATE_INSTANCE_USE_CASE_TOKEN,
       useClass: CreateEvolutionInstanceUseCase,
     },
   ],
+  exports: [CREATE_INSTANCE_USE_CASE_TOKEN],
 })
 export class EvolutionModule {}

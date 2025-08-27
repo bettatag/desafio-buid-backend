@@ -1,27 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { EVOLUTION_REPOSITORY } from '../../../../shared/constants/di-constants';
-import { Evolution } from '../../presentation/dtos/create-evolution-intance.dto';
-import { EvolutionRepositoryInterface } from '../../domain/repositories/evolution.repository.interface';
-import { CreateEvolutionDto } from '../contracts/services/create-instance-usecase.contract';
+import { CREATE_EVOLUTION_INSTANCE_REPOSITORY_TOKEN } from 'src/shared/constants/di-constants';
+import { ICreateEvolutionInstanceRepository } from '../../domain/repositories/create-evolution-instance-repository.contract';
+import { ICreateInstanceUseCaseInput } from '../contracts/input/create-instance-usecase-input.contract';
+import { ICreateInstanceUseCaseOutput } from '../contracts/output/create-instance-usecase-output.contract';
+import { ICreateInstanceUseCase } from '../contracts/Services/create-instance-usecase.contract';
 
 @Injectable()
-export class CreateEvolutionUseCase {
+export class CreateEvolutionInstanceUseCase implements ICreateInstanceUseCase {
   constructor(
-    @Inject(EVOLUTION_REPOSITORY)
-    private readonly evolutionRepository: EvolutionRepositoryInterface,
+    @Inject(CREATE_EVOLUTION_INSTANCE_REPOSITORY_TOKEN)
+    private readonly createEvolutionInstanceRepository: ICreateEvolutionInstanceRepository,
   ) {}
 
-  async execute(createDto: CreateEvolutionDto): Promise<Evolution> {
-    const id = uuidv4();
-    const evolution = Evolution.create(
-      id,
-      createDto.name,
-      createDto.description,
-      createDto.version,
-      createDto.isActive,
-    );
-
-    return await this.evolutionRepository.create(evolution);
+  async create(
+    createInstanceUseCaseInput: ICreateInstanceUseCaseInput,
+  ): Promise<ICreateInstanceUseCaseOutput> {
+    return await this.createEvolutionInstanceRepository.create(createInstanceUseCaseInput);
   }
 }

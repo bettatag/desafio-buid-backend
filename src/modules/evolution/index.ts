@@ -1,9 +1,9 @@
 // Domain
 export * from './presentation/dtos/create-evolution-intance.dto';
-export * from './domain/repositories/evolution.repository.interface';
+export * from './domain/contracts/evolution.repository.interface';
 
 // Application
-export * from './application/contracts/services/create-instance-usecase.contract';
+export * from './application/contracts/Services/create-instance-usecase.contract';
 export * from './application/services/evolution.service';
 export * from './application/use-cases/create-instance-usecase';
 export * from './application/use-cases/find-evolution-by-id.use-case';

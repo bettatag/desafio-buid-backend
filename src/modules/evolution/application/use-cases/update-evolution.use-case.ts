@@ -1,8 +1,8 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EVOLUTION_REPOSITORY } from '../../../../shared/constants/di-constants';
 import { Evolution } from '../../presentation/dtos/create-evolution-intance.dto';
-import { EvolutionRepositoryInterface } from '../../domain/repositories/evolution.repository.interface';
-import { UpdateEvolutionDto } from '../contracts/services/create-instance-usecase.contract';
+import { EvolutionRepositoryInterface } from '../../domain/contracts/evolution.repository.interface';
+import { UpdateEvolutionDto } from '../contracts/Services/create-instance-usecase.contract';
 
 @Injectable()
 export class UpdateEvolutionUseCase {

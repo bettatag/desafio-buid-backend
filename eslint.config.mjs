@@ -94,7 +94,7 @@ export default tseslint.config(
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
       'indent': ['error', 2],
-      'max-len': ['error', { code: 100, ignoreUrls: true }],
+      'max-len': ['error', { code: 200, ignoreUrls: true }],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
     },

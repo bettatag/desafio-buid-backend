@@ -1,14 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../infra/db/prisma.service';
-import { Evolution } from '../../presentation/dtos/create-evolution-intance.dto';
-import { EvolutionRepositoryInterface } from '../../domain/repositories/evolution.repository.interface';
+import { Inject, Injectable } from '@nestjs/common';
+import { IDbService } from 'src/infra/db/interfaces/db-service.interface';
+import { PRISMA_CLIENT_TOKEN } from 'src/shared/constants/di-constants';
+import { ICreateInstanceRepositoryInput } from '../../application/contracts/input/create-instance-repository-input.contract';
+import { ICreateInstanceRepositoryOutput } from '../../application/contracts/output/create-instance-repository-output.contracts';
+import { ICreateEvolutionInstanceRepository } from '../../domain/repositories/create-evolution-instance-repository.contract';
 
 @Injectable()
-export class EvolutionRepository implements EvolutionRepositoryInterface {
-  constructor(private readonly prisma: PrismaService) {}
+export class CreateEvolutionInstanceRepository implements ICreateEvolutionInstanceRepository {
+  constructor(
+    @Inject(PRISMA_CLIENT_TOKEN)
+    private readonly prismaClient: IDbService,
+  ) {}
 
-  async create(evolution: Evolution): Promise<Evolution> {
-    const created = await this.prisma.evolution.create({
+  async create(
+    createInstanceRepositoryInput: ICreateInstanceRepositoryInput,
+  ): Promise<ICreateInstanceRepositoryOutput> {
+    return = await this.prismaClient.evolutionInstance.create({
       data: {
         id: evolution.id,
         name: evolution.name,

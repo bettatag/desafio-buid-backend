@@ -1,55 +1,40 @@
 import { Type } from 'class-transformer';
-import {
-  IsString,
-  IsBoolean,
-  IsArray,
-  IsIn,
-  IsUrl,
-  IsNotEmpty,
-  ValidateNested,
-} from 'class-validator';
+import { IsString, IsBoolean, IsArray, IsEnum, ValidateNested } from 'class-validator';
 
 class ProxyDto {
   @IsString()
-  @IsNotEmpty()
     host: string;
 
   @IsString()
-  @IsNotEmpty()
     port: string;
 
-  @IsIn(['http', 'https'])
+  @IsEnum(['http', 'https'])
     protocol: 'http' | 'https';
 
   @IsString()
-  @IsNotEmpty()
     username: string;
 
   @IsString()
-  @IsNotEmpty()
     password: string;
 }
 
-export class CreateEvolutionInstanceDto {
+export class CreateInstanceDto {
   @IsString()
-  @IsNotEmpty()
     instanceName: string;
 
   @IsString()
-  @IsNotEmpty()
     token: string;
 
   @IsBoolean()
     qrcode: boolean;
 
   @IsString()
-  @IsNotEmpty()
     number: string;
 
-  @IsIn(['WHATSAPP-BAILEYS'])
+  @IsEnum(['WHATSAPP-BAILEYS'])
     integration: 'WHATSAPP-BAILEYS';
 
-  @IsUrl()
+  @IsString()
     webhook: string;
 
   @IsBoolean()

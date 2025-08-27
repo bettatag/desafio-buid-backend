@@ -9,14 +9,10 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { EvolutionService } from '../../application/services/evolution.service';
-import { CreateEvolutionDto } from '../dtos/create-evolution.dto';
-import { EvolutionResponseDto } from '../dtos/evolution-response.dto';
-import { UpdateEvolutionDto } from '../dtos/update-evolution.dto';
 
 @Controller('evolutions')
 export class EvolutionController {
-  constructor(private readonly evolutionService: EvolutionService) {}
+  constructor(private readonly createInstanceUseCase: ICreateInstanceUseCase) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
