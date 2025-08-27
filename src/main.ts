@@ -6,7 +6,32 @@ import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    logger: process.env.NODE_ENV === 'production' 
+      ? ['log', 'error', 'warn'] 
+      : ['log', 'error', 'warn', 'debug', 'verbose'],
+  });
+
+  // Security headers for production
+  if (process.env.NODE_ENV === 'production') {
+    app.use((req: any, res: any, next: any) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-Frame-Options', 'DENY');
+      res.setHeader('X-XSS-Protection', '1; mode=block');
+      res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+      res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+      next();
+    });
+  }
+
+  // Configure CORS
+  app.enableCors({
+    origin: process.env.NODE_ENV === 'production' 
+      ? process.env.CORS_ORIGIN?.split(',') || false
+      : true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 200,
   });
 
   // Configure cookie parser
@@ -21,7 +46,7 @@ async function bootstrap(): Promise<void> {
       transformOptions: {
         enableImplicitConversion: true, // Enable implicit type conversion
       },
-      disableErrorMessages: false, // Show detailed error messages
+      disableErrorMessages: process.env.NODE_ENV === 'production', // Hide detailed errors in production
     }),
   );
 

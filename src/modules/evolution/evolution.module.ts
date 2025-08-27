@@ -5,12 +5,20 @@ import {
   FETCH_INSTANCES_USE_CASE_TOKEN,
   INSTANCE_MANAGEMENT_USE_CASE_TOKEN,
   INSTANCE_MANAGEMENT_REPOSITORY_TOKEN,
+  MESSAGE_USE_CASE_TOKEN,
+  MESSAGE_REPOSITORY_TOKEN,
+  SESSION_USE_CASE_TOKEN,
+  SESSION_REPOSITORY_TOKEN,
 } from '../../shared/constants/di-constants';
 import { CreateEvolutionInstanceUseCase } from './application/use-cases/create-instance-usecase';
-import { CreateEvolutionInstanceRepository } from './infra/repositories/create-evolution-instance.repository';
 import { FetchInstancesUseCase } from './application/use-cases/fetch-instances-usecase';
 import { InstanceManagementUseCase } from './application/use-cases/instance-management-usecase';
+import { MessageUseCase } from './application/use-cases/message-usecase';
+import { SessionUseCase } from './application/use-cases/session-usecase';
+import { CreateEvolutionInstanceRepository } from './infra/repositories/create-evolution-instance.repository';
 import { InstanceManagementRepository } from './infra/repositories/instance-management.repository';
+import { MessageRepository } from './infra/repositories/message.repository';
+import { SessionRepository } from './infra/repositories/session.repository';
 import { EvolutionController } from './presentation/controllers/evolution.controller';
 
 @Module({
@@ -36,6 +44,22 @@ import { EvolutionController } from './presentation/controllers/evolution.contro
       provide: INSTANCE_MANAGEMENT_REPOSITORY_TOKEN,
       useClass: InstanceManagementRepository,
     },
+    {
+      provide: MESSAGE_USE_CASE_TOKEN,
+      useClass: MessageUseCase,
+    },
+    {
+      provide: MESSAGE_REPOSITORY_TOKEN,
+      useClass: MessageRepository,
+    },
+    {
+      provide: SESSION_USE_CASE_TOKEN,
+      useClass: SessionUseCase,
+    },
+    {
+      provide: SESSION_REPOSITORY_TOKEN,
+      useClass: SessionRepository,
+    },
   ],
   exports: [
     CREATE_INSTANCE_USE_CASE_TOKEN,
@@ -43,6 +67,10 @@ import { EvolutionController } from './presentation/controllers/evolution.contro
     FETCH_INSTANCES_USE_CASE_TOKEN,
     INSTANCE_MANAGEMENT_USE_CASE_TOKEN,
     INSTANCE_MANAGEMENT_REPOSITORY_TOKEN,
+    MESSAGE_USE_CASE_TOKEN,
+    MESSAGE_REPOSITORY_TOKEN,
+    SESSION_USE_CASE_TOKEN,
+    SESSION_REPOSITORY_TOKEN,
   ],
 })
 export class EvolutionModule {}

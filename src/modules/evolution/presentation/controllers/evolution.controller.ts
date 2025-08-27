@@ -28,17 +28,27 @@ import {
   CREATE_INSTANCE_USE_CASE_TOKEN,
   FETCH_INSTANCES_USE_CASE_TOKEN,
   INSTANCE_MANAGEMENT_USE_CASE_TOKEN,
+  MESSAGE_USE_CASE_TOKEN,
+  SESSION_USE_CASE_TOKEN,
 } from 'src/shared/constants/di-constants';
 import { IsPublic } from 'src/shared/decorators/is-public.decorator';
 import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
 import { ICreateInstanceUseCase } from '../../application/contracts/Services/create-instance-usecase.contract';
 import { IFetchInstancesUseCase } from '../../application/contracts/Services/fetch-instances-usecase.contract';
 import { IInstanceManagementUseCase } from '../../application/contracts/Services/instance-management-usecase.contract';
+import { IMessageUseCase } from '../../application/contracts/Services/message-usecase.contract';
+import { ISessionUseCase } from '../../application/contracts/Services/session-usecase.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instance.entity';
 import { CreateEvolutionInstanceDto } from '../dtos/create-evolution-intance.dto';
 import { FetchInstancesDto } from '../dtos/fetch-instances.dto';
 import { UpdateSettingsDto } from '../dtos/update-settings.dto';
+import { SendTextMessageDto } from '../dtos/send-text-message.dto';
+import { SendMediaMessageDto } from '../dtos/send-media-message.dto';
+import { WebhookEventDto } from '../dtos/webhook-event.dto';
+import { ChangeSessionStatusDto, CreateSessionDto, GetSessionsQueryDto } from '../dtos/session-management.dto';
+import { SendMessageResponseDto, MessageHistoryResponseDto, WebhookProcessResponseDto } from '../outputs/message-response.contract';
+import { SessionEntity } from '../../domain/entities/session.entity';
 
 @ApiTags('Evolution')
 @Controller('evolution')
@@ -50,6 +60,10 @@ export class EvolutionController {
     private readonly fetchInstancesUseCase: IFetchInstancesUseCase,
     @Inject(INSTANCE_MANAGEMENT_USE_CASE_TOKEN)
     private readonly instanceManagementUseCase: IInstanceManagementUseCase,
+    @Inject(MESSAGE_USE_CASE_TOKEN)
+    private readonly messageUseCase: IMessageUseCase,
+    @Inject(SESSION_USE_CASE_TOKEN)
+    private readonly sessionUseCase: ISessionUseCase,
   ) {}
 
   @Post('create-instance')
@@ -500,6 +514,616 @@ export class EvolutionController {
       }
       throw new HttpException(
         'Erro interno ao atualizar configurações',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ===== ENDPOINTS DE MENSAGENS =====
+
+  @Post('message/text/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Enviar mensagem de texto',
+    description: 'Envia uma mensagem de texto para um contato específico via WhatsApp',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiBody({
+    type: SendTextMessageDto,
+    description: 'Dados da mensagem de texto',
+  })
+  @ApiOkResponse({
+    description: 'Mensagem enviada com sucesso',
+    type: SendMessageResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Dados inválidos fornecidos',
+  })
+  async sendTextMessage(
+    @Param('instanceName') instanceName: string,
+    @Body() sendTextMessageDto: SendTextMessageDto,
+  ): Promise<SendMessageResponseDto> {
+    try {
+      const result = await this.messageUseCase.sendTextMessage({
+        instanceName,
+        ...sendTextMessageDto,
+      });
+
+      return {
+        ...result,
+        message: 'Mensagem de texto enviada com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao enviar mensagem de texto',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('message/media/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Enviar mensagem de mídia',
+    description: 'Envia uma mensagem de mídia (imagem, vídeo, áudio ou documento) para um contato específico',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiBody({
+    type: SendMediaMessageDto,
+    description: 'Dados da mensagem de mídia',
+  })
+  @ApiOkResponse({
+    description: 'Mensagem de mídia enviada com sucesso',
+    type: SendMessageResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Dados inválidos fornecidos',
+  })
+  async sendMediaMessage(
+    @Param('instanceName') instanceName: string,
+    @Body() sendMediaMessageDto: SendMediaMessageDto,
+  ): Promise<SendMessageResponseDto> {
+    try {
+      const result = await this.messageUseCase.sendMediaMessage({
+        instanceName,
+        ...sendMediaMessageDto,
+      });
+
+      return {
+        ...result,
+        message: 'Mensagem de mídia enviada com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao enviar mensagem de mídia',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('message/history/:instanceName/:contactNumber')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Buscar histórico de mensagens',
+    description: 'Recupera o histórico de mensagens entre a instância e um contato específico',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiParam({
+    name: 'contactNumber',
+    description: 'Número do contato',
+    example: '5511999999999',
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Limite de mensagens a retornar',
+    example: 50,
+    required: false,
+  })
+  @ApiOkResponse({
+    description: 'Histórico de mensagens recuperado com sucesso',
+    type: MessageHistoryResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Instância ou contato não encontrado',
+  })
+  async getMessageHistory(
+    @Param('instanceName') instanceName: string,
+    @Param('contactNumber') contactNumber: string,
+    @Query('limit') limit?: number,
+  ): Promise<MessageHistoryResponseDto> {
+    try {
+      const messages = await this.messageUseCase.getMessageHistory(
+        instanceName,
+        contactNumber,
+        limit,
+      );
+
+      return {
+        messages: messages.map(msg => ({
+          id: msg.id,
+          timestamp: msg.timestamp,
+          from: msg.from,
+          to: msg.to,
+          content: msg.content,
+          type: msg.type,
+          status: msg.status,
+          fromMe: msg.fromMe,
+          instanceName: msg.instanceName,
+        })),
+        total: messages.length,
+        instanceName,
+        contactNumber,
+        message: 'Histórico de mensagens recuperado com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao buscar histórico de mensagens',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Post('message/mark-read/:instanceName/:messageId')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Marcar mensagem como lida',
+    description: 'Marca uma mensagem específica como lida',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiParam({
+    name: 'messageId',
+    description: 'ID da mensagem',
+    example: 'msg-123456789',
+  })
+  @ApiOkResponse({
+    description: 'Mensagem marcada como lida com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'success' },
+        message: { type: 'string', example: 'Mensagem marcada como lida com sucesso' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Mensagem não encontrada',
+  })
+  async markMessageAsRead(
+    @Param('instanceName') instanceName: string,
+    @Param('messageId') messageId: string,
+  ): Promise<{ status: string; message: string }> {
+    try {
+      await this.messageUseCase.markAsRead(instanceName, messageId);
+
+      return {
+        status: 'success',
+        message: 'Mensagem marcada como lida com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao marcar mensagem como lida',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ===== ENDPOINT DE WEBHOOK =====
+
+  @Post('webhook/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Processar evento webhook',
+    description: 'Recebe e processa eventos de webhook do WhatsApp',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiBody({
+    type: WebhookEventDto,
+    description: 'Dados do evento webhook',
+  })
+  @ApiOkResponse({
+    description: 'Evento webhook processado com sucesso',
+    type: WebhookProcessResponseDto,
+  })
+  async processWebhook(
+    @Param('instanceName') instanceName: string,
+    @Body() webhookEventDto: WebhookEventDto,
+  ): Promise<WebhookProcessResponseDto> {
+    try {
+      await this.messageUseCase.processWebhookEvent({
+        ...webhookEventDto,
+        instance: {
+          ...webhookEventDto.instance,
+          instanceName,
+        },
+      });
+
+      return {
+        status: 'processed',
+        eventType: webhookEventDto.event,
+        processedAt: Date.now(),
+        message: 'Evento webhook processado com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao processar evento webhook',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ===== ENDPOINTS DE GERENCIAMENTO DE SESSÕES =====
+
+  @Post('session/:instanceName')
+  @HttpCode(HttpStatus.CREATED)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Criar nova sessão de conversa',
+    description: 'Cria uma nova sessão de conversa para um contato específico',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiBody({
+    type: CreateSessionDto,
+    description: 'Dados da nova sessão',
+  })
+  @ApiCreatedResponse({
+    description: 'Sessão criada com sucesso',
+    type: SessionEntity,
+  })
+  async createSession(
+    @Param('instanceName') instanceName: string,
+    @Body() createSessionDto: CreateSessionDto,
+  ): Promise<SessionEntity> {
+    try {
+      const result = await this.sessionUseCase.createSession({
+        instanceName,
+        ...createSessionDto,
+      });
+
+      return new SessionEntity(
+        result.id,
+        result.instanceName,
+        result.remoteJid,
+        result.status,
+        result.context,
+        result.createdAt,
+        result.updatedAt,
+        result.messageCount,
+        result.lastMessageAt,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao criar sessão',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Put('session/status/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Alterar status da sessão',
+    description: 'Altera o status de uma sessão específica (opened, paused, closed)',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiBody({
+    type: ChangeSessionStatusDto,
+    description: 'Dados para alteração do status',
+  })
+  @ApiOkResponse({
+    description: 'Status da sessão alterado com sucesso',
+    type: SessionEntity,
+  })
+  async changeSessionStatus(
+    @Param('instanceName') instanceName: string,
+    @Body() changeStatusDto: ChangeSessionStatusDto,
+  ): Promise<SessionEntity> {
+    try {
+      const result = await this.sessionUseCase.changeSessionStatus({
+        instanceName,
+        ...changeStatusDto,
+      });
+
+      return new SessionEntity(
+        result.id,
+        result.instanceName,
+        result.remoteJid,
+        result.status,
+        result.context,
+        result.createdAt,
+        result.updatedAt,
+        result.messageCount,
+        result.lastMessageAt,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao alterar status da sessão',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('sessions/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Listar sessões da instância',
+    description: 'Recupera todas as sessões de uma instância com filtros opcionais',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiQuery({
+    name: 'status',
+    description: 'Filtrar por status das sessões',
+    enum: ['opened', 'paused', 'closed', 'all'],
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Limite de sessões a retornar',
+    example: 50,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'offset',
+    description: 'Deslocamento para paginação',
+    example: 0,
+    required: false,
+  })
+  @ApiOkResponse({
+    description: 'Lista de sessões recuperada com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        sessions: {
+          type: 'array',
+          items: { $ref: '#/components/schemas/SessionEntity' },
+        },
+        total: { type: 'number', example: 25 },
+        page: { type: 'number', example: 1 },
+        limit: { type: 'number', example: 50 },
+      },
+    },
+  })
+  async getSessions(
+    @Param('instanceName') instanceName: string,
+    @Query() query: GetSessionsQueryDto,
+  ) {
+    try {
+      const result = await this.sessionUseCase.getSessions({
+        instanceName,
+        ...query,
+      });
+
+      return {
+        sessions: result.sessions.map(session => new SessionEntity(
+          session.id,
+          session.instanceName,
+          session.remoteJid,
+          session.status,
+          session.context,
+          session.createdAt,
+          session.updatedAt,
+          session.messageCount,
+          session.lastMessageAt,
+        )),
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao listar sessões',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('session/:instanceName/:contactNumber')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Buscar sessão específica',
+    description: 'Recupera uma sessão específica por instância e contato',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiParam({
+    name: 'contactNumber',
+    description: 'Número do contato',
+    example: '5511999999999',
+  })
+  @ApiOkResponse({
+    description: 'Sessão encontrada',
+    type: SessionEntity,
+  })
+  @ApiNotFoundResponse({
+    description: 'Sessão não encontrada',
+  })
+  async getSession(
+    @Param('instanceName') instanceName: string,
+    @Param('contactNumber') contactNumber: string,
+  ): Promise<SessionEntity> {
+    try {
+      const result = await this.sessionUseCase.getSession(instanceName, contactNumber);
+
+      if (!result) {
+        throw new HttpException('Sessão não encontrada', HttpStatus.NOT_FOUND);
+      }
+
+      return new SessionEntity(
+        result.id,
+        result.instanceName,
+        result.remoteJid,
+        result.status,
+        result.context,
+        result.createdAt,
+        result.updatedAt,
+        result.messageCount,
+        result.lastMessageAt,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao buscar sessão',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Delete('session/:instanceName/:contactNumber')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Excluir sessão',
+    description: 'Exclui uma sessão específica',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiParam({
+    name: 'contactNumber',
+    description: 'Número do contato',
+    example: '5511999999999',
+  })
+  @ApiOkResponse({
+    description: 'Sessão excluída com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'success' },
+        message: { type: 'string', example: 'Sessão excluída com sucesso' },
+      },
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Sessão não encontrada',
+  })
+  async deleteSession(
+    @Param('instanceName') instanceName: string,
+    @Param('contactNumber') contactNumber: string,
+  ): Promise<{ status: string; message: string }> {
+    try {
+      await this.sessionUseCase.deleteSession(instanceName, contactNumber);
+
+      return {
+        status: 'success',
+        message: 'Sessão excluída com sucesso',
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao excluir sessão',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('sessions/stats/:instanceName')
+  @HttpCode(HttpStatus.OK)
+  @IsPublic()
+  @ApiOperation({
+    summary: 'Estatísticas das sessões',
+    description: 'Recupera estatísticas das sessões de uma instância',
+  })
+  @ApiParam({
+    name: 'instanceName',
+    description: 'Nome da instância',
+    example: 'minha-instancia',
+  })
+  @ApiOkResponse({
+    description: 'Estatísticas recuperadas com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        total: { type: 'number', example: 25 },
+        opened: { type: 'number', example: 10 },
+        paused: { type: 'number', example: 8 },
+        closed: { type: 'number', example: 7 },
+        totalMessages: { type: 'number', example: 150 },
+      },
+    },
+  })
+  async getSessionStats(
+    @Param('instanceName') instanceName: string,
+  ) {
+    try {
+      return await this.sessionUseCase.getSessionStats(instanceName);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Erro interno ao obter estatísticas das sessões',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

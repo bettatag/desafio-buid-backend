@@ -23,6 +23,14 @@ export const TOKEN_SERVICE_TOKEN = Symbol('TokenService');
 export const LOGGER_SERVICE_TOKEN = Symbol('LoggerService');
 export const AUTH_CONFIG_TOKEN = Symbol('AuthConfig');
 
+// Message Management
+export const MESSAGE_USE_CASE_TOKEN = Symbol('MessageUseCase');
+export const MESSAGE_REPOSITORY_TOKEN = Symbol('MessageRepository');
+
+// Session Management
+export const SESSION_USE_CASE_TOKEN = Symbol('SessionUseCase');
+export const SESSION_REPOSITORY_TOKEN = Symbol('SessionRepository');
+
 // OpenAI Module
 export const OPENAI_BOT_USE_CASE_TOKEN = Symbol('OpenAIBotUseCase');
 export const OPENAI_BOT_REPOSITORY_TOKEN = Symbol('OpenAIBotRepository');
