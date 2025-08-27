@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { IConversationUseCase } from '../contracts/services/conversation-usecase.contract';
 import { IConversationRepository } from '../../domain/repositories/conversation-repository.contract';
@@ -31,21 +31,38 @@ export class ConversationUseCase implements IConversationUseCase {
   async createConversation(input: ICreateConversationInput): Promise<IConversationOutput> {
     // Validações de negócio
     if (!input.userId) {
-      throw new Error('User ID is required');
+      throw new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST);
+    }
+
+    if (input.userId <= 0) {
+      throw new HttpException('UserId deve ser um número positivo', HttpStatus.BAD_REQUEST);
     }
 
     // Gerar título automático se não fornecido
     const title = input.title || this.generateDefaultTitle();
 
-    const conversation = await this.conversationRepository.createConversation({
-      ...input,
-      title,
-    });
+    try {
+      const conversation = await this.conversationRepository.createConversation({
+        ...input,
+        title,
+      });
 
-    return conversation;
+      return conversation;
+    } catch (error) {
+      throw new HttpException('Erro interno ao criar conversa', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async updateConversation(input: IUpdateConversationInput): Promise<IConversationOutput> {
+    // Validações
+    if (!input.conversationId) {
+      throw new HttpException('ConversationId é obrigatório', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!input.userId) {
+      throw new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST);
+    }
+
     // Verificar se a conversa existe e pertence ao usuário
     const existingConversation = await this.conversationRepository.findConversationById(
       input.conversationId,
@@ -60,6 +77,15 @@ export class ConversationUseCase implements IConversationUseCase {
   }
 
   async deleteConversation(conversationId: string, userId: number): Promise<void> {
+    // Validações
+    if (!conversationId) {
+      throw new HttpException('ConversationId é obrigatório', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!userId) {
+      throw new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST);
+    }
+
     // Verificar se a conversa existe e pertence ao usuário
     const existingConversation = await this.conversationRepository.findConversationById(
       conversationId,
@@ -102,11 +128,11 @@ export class ConversationUseCase implements IConversationUseCase {
     );
 
     if (!conversation) {
-      throw new Error('Conversation not found');
+      throw new Error('Conversation not found or inactive');
     }
 
     if (!conversation.isActive) {
-      throw new Error('Cannot add message to inactive conversation');
+      throw new Error('Conversation not found or inactive');
     }
 
     // Criar mensagem

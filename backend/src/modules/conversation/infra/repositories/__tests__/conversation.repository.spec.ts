@@ -450,7 +450,10 @@ describe('ConversationRepository', () => {
       expect(mockPrisma.conversationMessage.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           metadata: undefined,
-          openaiMessageId: undefined,
+          openaiMessageId: null,
+          tokensUsed: null,
+          model: null,
+          finishReason: null,
         }),
       });
     });

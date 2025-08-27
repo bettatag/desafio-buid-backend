@@ -1,11 +1,11 @@
-# Dockerfile para Monorepo - Backend
+# Dockerfile para Backend (executado a partir da pasta backend)
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copiar arquivos de dependências do backend
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
+# Copiar arquivos de dependências
+COPY package*.json ./
+COPY prisma ./prisma/
 
 # Instalar dependências
 RUN npm install
@@ -13,8 +13,8 @@ RUN npm install
 # Gerar Prisma Client
 RUN npx prisma generate
 
-# Copiar código fonte do backend
-COPY backend/ .
+# Copiar código fonte
+COPY . .
 
 # Build da aplicação
 RUN npm run build

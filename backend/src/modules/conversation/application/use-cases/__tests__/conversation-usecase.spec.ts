@@ -175,6 +175,7 @@ describe('ConversationUseCase', () => {
 
     it('should successfully update conversation with valid input', async () => {
       // Arrange
+      conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
       conversationRepository.updateConversation.mockResolvedValue(mockConversationOutput);
 
       // Act
@@ -182,6 +183,7 @@ describe('ConversationUseCase', () => {
 
       // Assert
       expect(result).toEqual(mockConversationOutput);
+      expect(conversationRepository.findConversationById).toHaveBeenCalledWith(validInput.conversationId, validInput.userId);
       expect(conversationRepository.updateConversation).toHaveBeenCalledWith(validInput);
       expect(conversationRepository.updateConversation).toHaveBeenCalledTimes(1);
     });
@@ -208,12 +210,14 @@ describe('ConversationUseCase', () => {
   describe('deleteConversation', () => {
     it('should successfully delete conversation', async () => {
       // Arrange
+      conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
       conversationRepository.deleteConversation.mockResolvedValue();
 
       // Act
       await conversationUseCase.deleteConversation('conv-123', 1);
 
       // Assert
+      expect(conversationRepository.findConversationById).toHaveBeenCalledWith('conv-123', 1);
       expect(conversationRepository.deleteConversation).toHaveBeenCalledWith('conv-123', 1);
       expect(conversationRepository.deleteConversation).toHaveBeenCalledTimes(1);
     });
@@ -373,6 +377,7 @@ describe('ConversationUseCase', () => {
 
     it('should successfully get messages with valid input', async () => {
       // Arrange
+      conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
       conversationRepository.findMessagesByConversation.mockResolvedValue(mockMessageListOutput);
 
       // Act
@@ -380,6 +385,7 @@ describe('ConversationUseCase', () => {
 
       // Assert
       expect(result).toEqual(mockMessageListOutput);
+      expect(conversationRepository.findConversationById).toHaveBeenCalledWith(validInput.conversationId, validInput.userId);
       expect(conversationRepository.findMessagesByConversation).toHaveBeenCalledWith(expect.objectContaining({
         conversationId: validInput.conversationId,
         userId: validInput.userId,
@@ -392,6 +398,7 @@ describe('ConversationUseCase', () => {
     it('should use default values when not provided', async () => {
       // Arrange
       const minimalInput = { conversationId: 'conv-123', userId: 1 };
+      conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
       conversationRepository.findMessagesByConversation.mockResolvedValue(mockMessageListOutput);
 
       // Act
@@ -399,6 +406,7 @@ describe('ConversationUseCase', () => {
 
       // Assert
       expect(result).toEqual(mockMessageListOutput);
+      expect(conversationRepository.findConversationById).toHaveBeenCalledWith('conv-123', 1);
       expect(conversationRepository.findMessagesByConversation).toHaveBeenCalledWith(expect.objectContaining({
         conversationId: 'conv-123',
         userId: 1,
