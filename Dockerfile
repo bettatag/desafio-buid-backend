@@ -1,34 +1,18 @@
-# Dockerfile simples para Railway
+# Dockerfile super simples para Railway
 FROM node:18-alpine
 
-# Instalar dependências necessárias
-RUN apk add --no-cache libc6-compat openssl
-
-# Criar diretório de trabalho
 WORKDIR /app
 
-# Copiar package files
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Instalar dependências
-RUN npm ci
-
-# Gerar Prisma Client
-RUN npx prisma generate
-
-# Copiar código fonte
+# Copiar tudo
 COPY . .
 
-# Build da aplicação
+# Instalar dependências e gerar Prisma
+RUN npm install
+RUN npx prisma generate
 RUN npm run build
 
 # Expor porta
 EXPOSE 3000
 
-# Variáveis de ambiente
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# Comando para iniciar
+# Iniciar aplicação
 CMD ["npm", "run", "start:prod"]
