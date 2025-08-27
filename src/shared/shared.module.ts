@@ -1,7 +1,6 @@
 import { Module, Global } from '@nestjs/common';
-import { IDbService } from '../infra/db/interfaces/db-service.interface';
-import { PrismaService } from '../infra/db/prisma.service';
-import { PRISMA_CLIENT_TOKEN, CREATE_INSTANCE_USE_CASE_TOKEN } from './constants/di-constants';
+import { PRISMA_CLIENT_TOKEN } from './constants/di-constants';
+import { PrismaService } from './db/prisma.service';
 
 @Global()
 @Module({
@@ -12,6 +11,6 @@ import { PRISMA_CLIENT_TOKEN, CREATE_INSTANCE_USE_CASE_TOKEN } from './constants
       useClass: PrismaService,
     },
   ],
-  exports: [PrismaService, PRISMA_CLIENT_TOKEN, CREATE_INSTANCE_USE_CASE_TOKEN],
+  exports: [PrismaService, PRISMA_CLIENT_TOKEN],
 })
 export class SharedModule {}

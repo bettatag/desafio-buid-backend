@@ -30,9 +30,11 @@ model EvolutionInstance {
   updatedAt  DateTime @updatedAt
 
   // relações
-  instance   Instance
-  hash       Hash
-  settings   Settings
+  instance   Instance?
+  hash       Hash?
+  settings   Settings?
+
+  @@map("evolution_instances")
 }
 
 model Instance {
@@ -45,6 +47,8 @@ model Instance {
 
   evolutionInstanceId String   @unique
   evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("instances")
 }
 
 model Hash {
@@ -53,6 +57,8 @@ model Hash {
 
   evolutionInstanceId String   @unique
   evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("hashes")
 }
 
 model Settings {
@@ -67,5 +73,7 @@ model Settings {
 
   evolutionInstanceId String   @unique
   evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("settings")
 }
 

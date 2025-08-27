@@ -1,50 +1,42 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   HttpCode,
   HttpStatus,
+  HttpException,
+  Inject,
 } from '@nestjs/common';
+import { CREATE_INSTANCE_USE_CASE_TOKEN } from 'src/shared/constants/di-constants';
+import { ICreateInstanceUseCase } from '../../application/contracts/Services/create-instance-usecase.contract';
+import { ERROR_MESSAGES } from '../../domain/constants/error-messages';
+import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
+import { CreateEvolutionInstanceDto } from '../dtos/create-evolution-intance.dto';
 
-@Controller('evolutions')
+@Controller('evolution')
 export class EvolutionController {
-  constructor(private readonly createInstanceUseCase: ICreateInstanceUseCase) {}
+  constructor(
+    @Inject(CREATE_INSTANCE_USE_CASE_TOKEN)
+    private readonly createInstanceUseCase: ICreateInstanceUseCase,
+  ) {}
 
-  @Post()
+  @Post('create-instance')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createEvolutionDto: CreateEvolutionDto): Promise<EvolutionResponseDto> {
-    const evolution = await this.evolutionService.create(createEvolutionDto);
-    return EvolutionResponseDto.from(evolution);
-  }
+  async create(
+    @Body() createEvolutionInstanceDto: CreateEvolutionInstanceDto,
+  ): Promise<ICreateInstanceOutput> {
+    try {
+      const evolution = await this.createInstanceUseCase.create(createEvolutionInstanceDto);
+      return evolution;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-  @Get()
-  async findAll(): Promise<EvolutionResponseDto[]> {
-    const evolutions = await this.evolutionService.findAll();
-    return EvolutionResponseDto.fromArray(evolutions);
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<EvolutionResponseDto> {
-    const evolution = await this.evolutionService.findById(id);
-    return EvolutionResponseDto.from(evolution);
-  }
-
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateEvolutionDto: UpdateEvolutionDto,
-  ): Promise<EvolutionResponseDto> {
-    const evolution = await this.evolutionService.update(id, updateEvolutionDto);
-    return EvolutionResponseDto.from(evolution);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.evolutionService.delete(id);
+      throw new HttpException(
+        ERROR_MESSAGES.INSTANCE_CREATION_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

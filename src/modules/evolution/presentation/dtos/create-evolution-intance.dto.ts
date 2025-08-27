@@ -1,75 +1,107 @@
 import { Type } from 'class-transformer';
-import { IsString, IsBoolean, IsArray, IsEnum, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsArray,
+  IsEnum,
+  ValidateNested,
+  Length,
+  IsUrl,
+  IsNotEmpty,
+  ArrayMaxSize,
+  MaxLength,
+} from 'class-validator';
 
 class ProxyDto {
   @IsString()
-    host: string;
+  @IsNotEmpty()
+  @Length(1, 255)
+  host: string;
 
   @IsString()
-    port: string;
+  @IsNotEmpty()
+  @Length(1, 5)
+  port: string;
 
   @IsEnum(['http', 'https'])
-    protocol: 'http' | 'https';
+  protocol: 'http' | 'https';
 
   @IsString()
-    username: string;
+  @IsNotEmpty()
+  @Length(1, 100)
+  username: string;
 
   @IsString()
-    password: string;
+  @IsNotEmpty()
+  @Length(1, 100)
+  password: string;
 }
 
-export class CreateInstanceDto {
+export class CreateEvolutionInstanceDto {
   @IsString()
-    instanceName: string;
+  @IsNotEmpty()
+  @Length(3, 50)
+  instanceName: string;
 
   @IsString()
-    token: string;
+  @IsNotEmpty()
+  @Length(10, 500)
+  token: string;
 
   @IsBoolean()
-    qrcode: boolean;
+  qrcode: boolean;
 
   @IsString()
-    number: string;
+  @IsNotEmpty()
+  @Length(8, 20)
+  number: string;
 
   @IsEnum(['WHATSAPP-BAILEYS'])
-    integration: 'WHATSAPP-BAILEYS';
+  integration: 'WHATSAPP-BAILEYS';
 
   @IsString()
-    webhook: string;
+  @IsUrl()
+  @MaxLength(500)
+  webhook: string;
 
   @IsBoolean()
-    webhook_by_events: boolean;
+  webhook_by_events: boolean;
 
   @IsArray()
+  @ArrayMaxSize(50)
   @IsString({ each: true })
-    events: string[];
+  @MaxLength(100, { each: true })
+  events: string[];
 
   @IsBoolean()
-    reject_call: boolean;
+  reject_call: boolean;
 
   @IsString()
-    msg_call: string;
+  @MaxLength(500)
+  msg_call: string;
 
   @IsBoolean()
-    groups_ignore: boolean;
+  groups_ignore: boolean;
 
   @IsBoolean()
-    always_online: boolean;
+  always_online: boolean;
 
   @IsBoolean()
-    read_messages: boolean;
+  read_messages: boolean;
 
   @IsBoolean()
-    read_status: boolean;
+  read_status: boolean;
 
   @IsBoolean()
-    websocket_enabled: boolean;
+  websocket_enabled: boolean;
 
   @IsArray()
+  @ArrayMaxSize(50)
   @IsString({ each: true })
-    websocket_events: string[];
+  @MaxLength(100, { each: true })
+  websocket_events: string[];
 
   @ValidateNested()
   @Type(() => ProxyDto)
-    proxy: ProxyDto;
+  proxy: ProxyDto;
 }

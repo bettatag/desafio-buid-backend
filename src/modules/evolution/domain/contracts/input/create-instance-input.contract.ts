@@ -1,4 +1,4 @@
-export type ICreateInstanceUseCaseInput = {
+export type ICreateInstanceInput = {
   instanceName: string;
   token: string;
   qrcode: boolean;

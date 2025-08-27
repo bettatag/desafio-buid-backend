@@ -1,8 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { IDbService } from 'src/infra/db/interfaces/db-service.interface';
+import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PRISMA_CLIENT_TOKEN } from 'src/shared/constants/di-constants';
-import { ICreateInstanceRepositoryInput } from '../../application/contracts/input/create-instance-repository-input.contract';
-import { ICreateInstanceRepositoryOutput } from '../../application/contracts/output/create-instance-repository-output.contracts';
+import { IDbService } from 'src/shared/db/interfaces/db-service.interface';
+import { ERROR_MESSAGES } from '../../domain/constants/error-messages';
+import { ICreateInstanceInput } from '../../domain/contracts/input/create-instance-input.contract';
+import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
+import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instance.entity';
 import { ICreateEvolutionInstanceRepository } from '../../domain/repositories/create-evolution-instance-repository.contract';
 
 @Injectable()
@@ -12,134 +14,79 @@ export class CreateEvolutionInstanceRepository implements ICreateEvolutionInstan
     private readonly prismaClient: IDbService,
   ) {}
 
-  async create(
-    createInstanceRepositoryInput: ICreateInstanceRepositoryInput,
-  ): Promise<ICreateInstanceRepositoryOutput> {
-    return = await this.prismaClient.evolutionInstance.create({
-      data: {
-        id: evolution.id,
-        name: evolution.name,
-        description: evolution.description,
-        version: evolution.version,
-        isActive: evolution.isActive,
-        createdAt: evolution.createdAt,
-        updatedAt: evolution.updatedAt,
-      },
-    });
+  async create(createInstanceInput: ICreateInstanceInput): Promise<ICreateInstanceOutput> {
+    try {
+      const evolutionInstance = await this.prismaClient.evolutionInstance.create({
+        data: {
+          instance: {
+            create: {
+              instanceName: createInstanceInput.instanceName,
+              instanceId: createInstanceInput.number,
+              webhookWaBusiness: createInstanceInput.webhook,
+              accessTokenWaBusiness: createInstanceInput.token,
+              status: 'ACTIVE',
+            },
+          },
+          hash: {
+            create: {
+              apikey: createInstanceInput.token,
+            },
+          },
+          settings: {
+            create: {
+              rejectCall: createInstanceInput.reject_call,
+              msgCall: createInstanceInput.msg_call,
+              groupsIgnore: createInstanceInput.groups_ignore,
+              alwaysOnline: createInstanceInput.always_online,
+              readMessages: createInstanceInput.read_messages,
+              readStatus: createInstanceInput.read_status,
+              syncFullHistory: true,
+            },
+          },
+        },
+        include: {
+          instance: true,
+          hash: true,
+          settings: true,
+        },
+      });
 
-    return new Evolution(
-      created.id,
-      created.name,
-      created.description,
-      created.version,
-      created.isActive,
-      created.createdAt,
-      created.updatedAt,
-    );
-  }
+      // Validar se os dados foram criados corretamente
+      if (!evolutionInstance.instance || !evolutionInstance.hash || !evolutionInstance.settings) {
+        throw new HttpException(
+          ERROR_MESSAGES.INVALID_INSTANCE_DATA,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
 
-  async findById(id: string): Promise<Evolution | null> {
-    const evolution = await this.prisma.evolution.findUnique({
-      where: { id },
-    });
+      // Criar e retornar a Entity rica
+      return EvolutionInstanceEntity.create({
+        instance: {
+          instanceName: evolutionInstance.instance.instanceName,
+          instanceId: evolutionInstance.instance.instanceId,
+          webhook_wa_business: evolutionInstance.instance.webhookWaBusiness,
+          access_token_wa_business: evolutionInstance.instance.accessTokenWaBusiness,
+          status: evolutionInstance.instance.status,
+        },
+        hash: {
+          apikey: evolutionInstance.hash.apikey,
+        },
+        settings: {
+          reject_call: evolutionInstance.settings.rejectCall,
+          msg_call: evolutionInstance.settings.msgCall,
+          groups_ignore: evolutionInstance.settings.groupsIgnore,
+          always_online: evolutionInstance.settings.alwaysOnline,
+          read_messages: evolutionInstance.settings.readMessages,
+          read_status: evolutionInstance.settings.readStatus,
+          sync_full_history: evolutionInstance.settings.syncFullHistory,
+        },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
 
-    if (!evolution) {
-      return null;
+      throw new HttpException(ERROR_MESSAGES.DATABASE_SAVE_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    return new Evolution(
-      evolution.id,
-      evolution.name,
-      evolution.description,
-      evolution.version,
-      evolution.isActive,
-      evolution.createdAt,
-      evolution.updatedAt,
-    );
-  }
-
-  async findAll(): Promise<Evolution[]> {
-    const evolutions = await this.prisma.evolution.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return evolutions.map(
-      (evolution) =>
-        new Evolution(
-          evolution.id,
-          evolution.name,
-          evolution.description,
-          evolution.version,
-          evolution.isActive,
-          evolution.createdAt,
-          evolution.updatedAt,
-        ),
-    );
-  }
-
-  async update(id: string, updateData: Partial<Evolution>): Promise<Evolution> {
-    const updated = await this.prisma.evolution.update({
-      where: { id },
-      data: {
-        ...updateData,
-        updatedAt: new Date(),
-      },
-    });
-
-    return new Evolution(
-      updated.id,
-      updated.name,
-      updated.description,
-      updated.version,
-      updated.isActive,
-      updated.createdAt,
-      updated.updatedAt,
-    );
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.prisma.evolution.delete({
-      where: { id },
-    });
-  }
-
-  async findByName(name: string): Promise<Evolution | null> {
-    const evolution = await this.prisma.evolution.findFirst({
-      where: { name },
-    });
-
-    if (!evolution) {
-      return null;
-    }
-
-    return new Evolution(
-      evolution.id,
-      evolution.name,
-      evolution.description,
-      evolution.version,
-      evolution.isActive,
-      evolution.createdAt,
-      evolution.updatedAt,
-    );
-  }
-
-  async findByVersion(version: string): Promise<Evolution[]> {
-    const evolutions = await this.prisma.evolution.findMany({
-      where: { version },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return evolutions.map(
-      (evolution) =>
-        new Evolution(
-          evolution.id,
-          evolution.name,
-          evolution.description,
-          evolution.version,
-          evolution.isActive,
-          evolution.createdAt,
-          evolution.updatedAt,
-        ),
-    );
   }
 }

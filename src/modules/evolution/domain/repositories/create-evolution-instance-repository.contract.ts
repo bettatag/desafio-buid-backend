@@ -1,7 +1,6 @@
-import { IDbService } from 'src/infra/db/interfaces/db-service.interface';
-import { EvolutionInstanceEntity } from '../entities/evolution-instance.entity';
+import { ICreateInstanceInput } from '../contracts/input/create-instance-input.contract';
+import { ICreateInstanceOutput } from '../contracts/output/create-instance-output.contract';
 
-export abstract class ICreateEvolutionInstanceRepository {
-  constructor(private readonly dbService: IDbService) {}
-  abstract create(httpRequestBody: any): Promise<EvolutionInstanceEntity>;
+export interface ICreateEvolutionInstanceRepository {
+  create(createInstanceInput: ICreateInstanceInput): Promise<ICreateInstanceOutput>;
 }
