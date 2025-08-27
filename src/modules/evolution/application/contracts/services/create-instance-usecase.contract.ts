@@ -1,11 +1,6 @@
-import { ICreateEvolutionInstanceRepository } from '../../../domain/repositories/create-evolution-instance-repository.contract';
-import { ICreateInstanceUseCaseInput } from '../input/create-instance-usecase-input.contract';
-import { ICreateInstanceUseCaseOutput } from '../output/create-instance-usecase-output.contract';
-export abstract class ICreateInstanceUseCase {
-  constructor(
-    private readonly createEvolutionInstanceRepository: ICreateEvolutionInstanceRepository,
-  ) {}
-  abstract create(
-    createInstanceUseCaseInput: ICreateInstanceUseCaseInput,
-  ): Promise<ICreateInstanceUseCaseOutput>;
+import { ICreateInstanceInput } from '../../../domain/contracts/input/create-instance-input.contract';
+import { ICreateInstanceOutput } from '../../../domain/contracts/output/create-instance-output.contract';
+
+export interface ICreateInstanceUseCase {
+  create(createInstanceInput: ICreateInstanceInput): Promise<ICreateInstanceOutput>;
 }

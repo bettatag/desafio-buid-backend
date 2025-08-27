@@ -1,6 +1,6 @@
 import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import { CREATE_EVOLUTION_INSTANCE_REPOSITORY_TOKEN } from 'src/shared/constants/di-constants';
-import { ERROR_MESSAGES } from '../../domain/constants/error-messages';
+import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
 import { ICreateInstanceInput } from '../../domain/contracts/input/create-instance-input.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { ICreateEvolutionInstanceRepository } from '../../domain/repositories/create-evolution-instance-repository.contract';

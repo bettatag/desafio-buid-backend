@@ -1,7 +1,7 @@
 import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PRISMA_CLIENT_TOKEN } from 'src/shared/constants/di-constants';
 import { IDbService } from 'src/shared/db/interfaces/db-service.interface';
-import { ERROR_MESSAGES } from '../../domain/constants/error-messages';
+import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
 import { ICreateInstanceInput } from '../../domain/contracts/input/create-instance-input.contract';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { EvolutionInstanceEntity } from '../../domain/entities/evolution-instance.entity';
@@ -64,7 +64,7 @@ export class CreateEvolutionInstanceRepository implements ICreateEvolutionInstan
         instance: {
           instanceName: evolutionInstance.instance.instanceName,
           instanceId: evolutionInstance.instance.instanceId,
-          webhook_wa_business: evolutionInstance.instance.webhookWaBusiness,
+          webhook_wa_business: evolutionInstance.instance.webhookWaBusiness || null,
           access_token_wa_business: evolutionInstance.instance.accessTokenWaBusiness,
           status: evolutionInstance.instance.status,
         },

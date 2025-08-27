@@ -8,8 +8,9 @@ import {
   Inject,
 } from '@nestjs/common';
 import { CREATE_INSTANCE_USE_CASE_TOKEN } from 'src/shared/constants/di-constants';
+import { IsPublic } from 'src/shared/decorators/is-public.decorator';
+import { ERROR_MESSAGES } from 'src/shared/errors/error-messages';
 import { ICreateInstanceUseCase } from '../../application/contracts/Services/create-instance-usecase.contract';
-import { ERROR_MESSAGES } from '../../domain/constants/error-messages';
 import { ICreateInstanceOutput } from '../../domain/contracts/output/create-instance-output.contract';
 import { CreateEvolutionInstanceDto } from '../dtos/create-evolution-intance.dto';
 
@@ -22,6 +23,7 @@ export class EvolutionController {
 
   @Post('create-instance')
   @HttpCode(HttpStatus.CREATED)
+  @IsPublic()
   async create(
     @Body() createEvolutionInstanceDto: CreateEvolutionInstanceDto,
   ): Promise<ICreateInstanceOutput> {

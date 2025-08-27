@@ -3,7 +3,7 @@ export class EvolutionInstanceEntity {
     public readonly instance: {
       instanceName: string;
       instanceId: string;
-      webhook_wa_business: string;
+      webhook_wa_business: string | null;
       access_token_wa_business: string;
       status: string;
     },
@@ -73,7 +73,7 @@ export class EvolutionInstanceEntity {
     instance: {
       instanceName: string;
       instanceId: string;
-      webhook_wa_business: string;
+      webhook_wa_business: string | null;
       access_token_wa_business: string;
       status: string;
     };
