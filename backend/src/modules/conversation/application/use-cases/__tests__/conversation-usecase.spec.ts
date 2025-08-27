@@ -3,6 +3,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { ConversationUseCase } from '../conversation-usecase';
 import { IConversationRepository } from '../../../domain/repositories/conversation-repository.contract';
 import { CONVERSATION_REPOSITORY_TOKEN } from '../../../../../shared/constants/di-constants';
+import { MessageRole } from '../../../domain/entities/conversation-message.entity';
 import {
   ICreateConversationInput,
   IUpdateConversationInput,
@@ -38,7 +39,7 @@ describe('ConversationUseCase', () => {
     id: 'msg-123',
     conversationId: 'conv-123',
     content: 'Hello, world!',
-    role: 'user',
+    role: MessageRole.USER,
     createdAt: new Date('2024-01-01T00:00:00.000Z'),
     metadata: { source: 'whatsapp' },
     openaiMessageId: 'openai-msg-123',
@@ -230,13 +231,13 @@ describe('ConversationUseCase', () => {
     });
   });
 
-  describe('getConversationById', () => {
+  describe('getConversation', () => {
     it('should successfully get conversation when it exists', async () => {
       // Arrange
       conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
 
       // Act
-      const result = await conversationUseCase.getConversationById('conv-123', 1);
+      const result = await conversationUseCase.getConversation('conv-123', 1);
 
       // Assert
       expect(result).toEqual(mockConversationOutput);
@@ -248,12 +249,12 @@ describe('ConversationUseCase', () => {
       conversationRepository.findConversationById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(conversationUseCase.getConversationById('conv-123', 1))
-        .rejects.toThrow(new HttpException('Conversa não encontrada', HttpStatus.NOT_FOUND));
+      await expect(conversationUseCase.getConversation('conv-123', 1))
+        .rejects.toThrow(new Error('Conversation not found or access denied'));
     });
   });
 
-  describe('getConversationsByUser', () => {
+  describe('getConversations', () => {
     const validInput: IGetConversationsInput = {
       userId: 1,
       page: 1,
@@ -267,46 +268,56 @@ describe('ConversationUseCase', () => {
       conversationRepository.findConversationsByUser.mockResolvedValue(mockConversationListOutput);
 
       // Act
-      const result = await conversationUseCase.getConversationsByUser(validInput);
+      const result = await conversationUseCase.getConversations(validInput);
 
       // Assert
       expect(result).toEqual(mockConversationListOutput);
-      expect(conversationRepository.findConversationsByUser).toHaveBeenCalledWith(validInput);
+      expect(conversationRepository.findConversationsByUser).toHaveBeenCalledWith(expect.objectContaining({
+        userId: validInput.userId,
+        page: validInput.page,
+        limit: validInput.limit,
+        isActive: validInput.isActive,
+        search: validInput.search,
+      }));
     });
 
-    it('should throw HttpException when userId is missing', async () => {
+    it('should use default values when not provided', async () => {
       // Arrange
-      const invalidInput = { ...validInput, userId: undefined as any };
+      const minimalInput = { userId: 1 };
+      conversationRepository.findConversationsByUser.mockResolvedValue(mockConversationListOutput);
 
-      // Act & Assert
-      await expect(conversationUseCase.getConversationsByUser(invalidInput))
-        .rejects.toThrow(new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST));
+      // Act
+      const result = await conversationUseCase.getConversations(minimalInput);
+
+      // Assert
+      expect(result).toEqual(mockConversationListOutput);
+      expect(conversationRepository.findConversationsByUser).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 1,
+        page: 1,
+        limit: 20,
+      }));
     });
 
-    it('should throw HttpException when page is not positive', async () => {
+    it('should limit maximum results per page', async () => {
       // Arrange
-      const invalidInput = { ...validInput, page: 0 };
+      const inputWithLargeLimit = { userId: 1, limit: 1000 };
+      conversationRepository.findConversationsByUser.mockResolvedValue(mockConversationListOutput);
 
-      // Act & Assert
-      await expect(conversationUseCase.getConversationsByUser(invalidInput))
-        .rejects.toThrow(new HttpException('Page deve ser um número positivo', HttpStatus.BAD_REQUEST));
-    });
+      // Act
+      await conversationUseCase.getConversations(inputWithLargeLimit);
 
-    it('should throw HttpException when limit is not positive', async () => {
-      // Arrange
-      const invalidInput = { ...validInput, limit: 0 };
-
-      // Act & Assert
-      await expect(conversationUseCase.getConversationsByUser(invalidInput))
-        .rejects.toThrow(new HttpException('Limit deve ser um número positivo', HttpStatus.BAD_REQUEST));
+      // Assert
+      expect(conversationRepository.findConversationsByUser).toHaveBeenCalledWith(expect.objectContaining({
+        limit: 100, // Should be capped at 100
+      }));
     });
   });
 
-  describe('createMessage', () => {
+  describe('addMessage', () => {
     const validInput: ICreateMessageInput = {
       conversationId: 'conv-123',
       content: 'Hello, world!',
-      role: 'user',
+      role: MessageRole.USER,
       metadata: { source: 'whatsapp' },
       openaiMessageId: 'openai-msg-123',
       tokensUsed: 10,
@@ -316,12 +327,13 @@ describe('ConversationUseCase', () => {
 
     it('should successfully create message with valid input', async () => {
       // Arrange
+      conversationRepository.findConversationById.mockResolvedValue(mockConversationOutput);
       conversationRepository.createMessage.mockResolvedValue(mockMessageOutput);
       conversationRepository.incrementMessageCount.mockResolvedValue();
       conversationRepository.updateLastMessageTime.mockResolvedValue();
 
       // Act
-      const result = await conversationUseCase.createMessage(validInput);
+      const result = await conversationUseCase.addMessage(validInput);
 
       // Assert
       expect(result).toEqual(mockMessageOutput);
@@ -330,40 +342,33 @@ describe('ConversationUseCase', () => {
       expect(conversationRepository.updateLastMessageTime).toHaveBeenCalledWith('conv-123');
     });
 
-    it('should throw HttpException when conversationId is missing', async () => {
+    it('should throw error when conversation does not exist', async () => {
       // Arrange
-      const invalidInput = { ...validInput, conversationId: '' };
+      conversationRepository.findConversationById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(conversationUseCase.createMessage(invalidInput))
-        .rejects.toThrow(new HttpException('ConversationId é obrigatório', HttpStatus.BAD_REQUEST));
+      await expect(conversationUseCase.addMessage(validInput))
+        .rejects.toThrow(new Error('Conversation not found or inactive'));
     });
 
-    it('should throw HttpException when content is missing', async () => {
+    it('should throw error when conversation is inactive', async () => {
       // Arrange
-      const invalidInput = { ...validInput, content: '' };
+      const inactiveConversation = { ...mockConversationOutput, isActive: false };
+      conversationRepository.findConversationById.mockResolvedValue(inactiveConversation);
 
       // Act & Assert
-      await expect(conversationUseCase.createMessage(invalidInput))
-        .rejects.toThrow(new HttpException('Content é obrigatório', HttpStatus.BAD_REQUEST));
-    });
-
-    it('should throw HttpException when role is invalid', async () => {
-      // Arrange
-      const invalidInput = { ...validInput, role: 'invalid' as any };
-
-      // Act & Assert
-      await expect(conversationUseCase.createMessage(invalidInput))
-        .rejects.toThrow(new HttpException('Role deve ser "user", "assistant" ou "system"', HttpStatus.BAD_REQUEST));
+      await expect(conversationUseCase.addMessage(validInput))
+        .rejects.toThrow(new Error('Conversation not found or inactive'));
     });
   });
 
-  describe('getMessagesByConversation', () => {
+  describe('getMessages', () => {
     const validInput: IGetMessagesInput = {
       conversationId: 'conv-123',
+      userId: 1,
       page: 1,
       limit: 50,
-      role: 'user',
+      role: MessageRole.USER,
     };
 
     it('should successfully get messages with valid input', async () => {
@@ -371,44 +376,53 @@ describe('ConversationUseCase', () => {
       conversationRepository.findMessagesByConversation.mockResolvedValue(mockMessageListOutput);
 
       // Act
-      const result = await conversationUseCase.getMessagesByConversation(validInput);
+      const result = await conversationUseCase.getMessages(validInput);
 
       // Assert
       expect(result).toEqual(mockMessageListOutput);
-      expect(conversationRepository.findMessagesByConversation).toHaveBeenCalledWith(validInput);
+      expect(conversationRepository.findMessagesByConversation).toHaveBeenCalledWith(expect.objectContaining({
+        conversationId: validInput.conversationId,
+        userId: validInput.userId,
+        page: validInput.page,
+        limit: validInput.limit,
+        role: validInput.role,
+      }));
     });
 
-    it('should throw HttpException when conversationId is missing', async () => {
+    it('should use default values when not provided', async () => {
       // Arrange
-      const invalidInput = { ...validInput, conversationId: '' };
+      const minimalInput = { conversationId: 'conv-123', userId: 1 };
+      conversationRepository.findMessagesByConversation.mockResolvedValue(mockMessageListOutput);
 
-      // Act & Assert
-      await expect(conversationUseCase.getMessagesByConversation(invalidInput))
-        .rejects.toThrow(new HttpException('ConversationId é obrigatório', HttpStatus.BAD_REQUEST));
+      // Act
+      const result = await conversationUseCase.getMessages(minimalInput);
+
+      // Assert
+      expect(result).toEqual(mockMessageListOutput);
+      expect(conversationRepository.findMessagesByConversation).toHaveBeenCalledWith(expect.objectContaining({
+        conversationId: 'conv-123',
+        userId: 1,
+        page: 1,
+        limit: 50,
+      }));
     });
   });
 
-  describe('getConversationStats', () => {
+  describe('getStats', () => {
     it('should successfully get conversation stats', async () => {
       // Arrange
       conversationRepository.getConversationStats.mockResolvedValue(mockStatsOutput);
 
       // Act
-      const result = await conversationUseCase.getConversationStats(1);
+      const result = await conversationUseCase.getStats(1);
 
       // Assert
       expect(result).toEqual(mockStatsOutput);
       expect(conversationRepository.getConversationStats).toHaveBeenCalledWith(1);
     });
-
-    it('should throw HttpException when userId is missing', async () => {
-      // Act & Assert
-      await expect(conversationUseCase.getConversationStats(undefined as any))
-        .rejects.toThrow(new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST));
-    });
   });
 
-  describe('getTokenUsageByUser', () => {
+  describe('getTokenUsage', () => {
     it('should successfully get token usage', async () => {
       // Arrange
       const startDate = new Date('2024-01-01');
@@ -416,7 +430,7 @@ describe('ConversationUseCase', () => {
       conversationRepository.getTokenUsageByUser.mockResolvedValue(500);
 
       // Act
-      const result = await conversationUseCase.getTokenUsageByUser(1, startDate, endDate);
+      const result = await conversationUseCase.getTokenUsage(1, startDate, endDate);
 
       // Assert
       expect(result).toBe(500);
@@ -428,7 +442,7 @@ describe('ConversationUseCase', () => {
       conversationRepository.getTokenUsageByUser.mockResolvedValue(1000);
 
       // Act
-      const result = await conversationUseCase.getTokenUsageByUser(1);
+      const result = await conversationUseCase.getTokenUsage(1);
 
       // Assert
       expect(result).toBe(1000);

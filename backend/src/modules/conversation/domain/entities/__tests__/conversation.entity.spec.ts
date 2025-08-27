@@ -357,12 +357,20 @@ describe('ConversationEntity', () => {
       const input1 = { userId: 1, title: 'Conv 1' };
       const input2 = { userId: 1, title: 'Conv 2' };
 
+      // Mock uuid to return different values
+      const mockUuid = jest.requireMock('uuid');
+      mockUuid.v4 = jest.fn()
+        .mockReturnValueOnce('uuid-1')
+        .mockReturnValueOnce('uuid-2');
+
       // Act
       const conversation1 = ConversationEntity.create(input1);
       const conversation2 = ConversationEntity.create(input2);
 
       // Assert
       expect(conversation1.id).not.toBe(conversation2.id);
+      expect(conversation1.id).toBe('uuid-1');
+      expect(conversation2.id).toBe('uuid-2');
     });
 
     it('should use current timestamp for createdAt and updatedAt', () => {

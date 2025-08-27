@@ -467,12 +467,20 @@ describe('ConversationMessageEntity', () => {
       const input1 = { conversationId: 'conv-123', content: 'Message 1', role: 'user' as const };
       const input2 = { conversationId: 'conv-123', content: 'Message 2', role: 'user' as const };
 
+      // Mock uuid to return different values
+      const mockUuid = jest.requireMock('uuid');
+      mockUuid.v4 = jest.fn()
+        .mockReturnValueOnce('msg-1')
+        .mockReturnValueOnce('msg-2');
+
       // Act
       const message1 = ConversationMessageEntity.create(input1);
       const message2 = ConversationMessageEntity.create(input2);
 
       // Assert
       expect(message1.id).not.toBe(message2.id);
+      expect(message1.id).toBe('msg-1');
+      expect(message2.id).toBe('msg-2');
     });
 
     it('should use current timestamp for createdAt', () => {
@@ -534,16 +542,16 @@ describe('ConversationMessageEntity', () => {
       // Arrange
       const originalMetadata = { source: 'whatsapp', messageId: 'wa-123' };
       const message = new ConversationMessageEntity(
-        'msg-123', 'conv-123', 'Hello', MessageRole.USER, new Date(), originalMetadata
+        'msg-123', 'conv-123', 'Hello', MessageRole.USER, new Date(), { ...originalMetadata }
       );
 
       // Act
       const retrievedMetadata = message.getMetadataValue('source');
-      originalMetadata.source = 'modified';
+      originalMetadata.source = 'modified'; // Modify original object
 
       // Assert
       expect(retrievedMetadata).toBe('whatsapp'); // Should not be affected by external modification
-      expect(message.getMetadataValue('source')).toBe('whatsapp');
+      expect(message.getMetadataValue('source')).toBe('whatsapp'); // Message metadata should be unchanged
     });
   });
 });

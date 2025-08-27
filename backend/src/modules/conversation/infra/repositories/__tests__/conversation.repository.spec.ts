@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConversationRepository } from '../conversation.repository';
 import { PRISMA_CLIENT_TOKEN } from '../../../../../shared/constants/di-constants';
+import { MessageRole } from '../../../domain/entities/conversation-message.entity';
 import {
   ICreateConversationInput,
   IUpdateConversationInput,
@@ -29,7 +30,7 @@ describe('ConversationRepository', () => {
     id: 'msg-123',
     conversationId: 'conv-123',
     content: 'Hello, world!',
-    role: 'user',
+    role: MessageRole.USER,
     createdAt: new Date('2024-01-01T00:00:00.000Z'),
     metadata: { source: 'whatsapp' },
     openaiMessageId: 'openai-msg-123',
@@ -387,7 +388,7 @@ describe('ConversationRepository', () => {
     const validInput: ICreateMessageInput = {
       conversationId: 'conv-123',
       content: 'Hello, world!',
-      role: 'user',
+      role: MessageRole.USER,
       metadata: { source: 'whatsapp' },
       openaiMessageId: 'openai-msg-123',
       tokensUsed: 10,
@@ -428,7 +429,7 @@ describe('ConversationRepository', () => {
       const minimalInput: ICreateMessageInput = {
         conversationId: 'conv-123',
         content: 'Hello',
-        role: 'user',
+        role: MessageRole.USER,
       };
       const minimalMessage = {
         ...mockMessage,
@@ -458,9 +459,10 @@ describe('ConversationRepository', () => {
   describe('findMessagesByConversation', () => {
     const validInput: IGetMessagesInput = {
       conversationId: 'conv-123',
+      userId: 1,
       page: 1,
       limit: 50,
-      role: 'user',
+      role: MessageRole.USER,
     };
 
     it('should successfully find messages with filters', async () => {
@@ -482,7 +484,7 @@ describe('ConversationRepository', () => {
       expect(mockPrisma.conversationMessage.findMany).toHaveBeenCalledWith({
         where: {
           conversationId: 'conv-123',
-          role: 'user',
+          role: MessageRole.USER,
         },
         orderBy: { createdAt: 'asc' },
         skip: 0,
@@ -492,7 +494,7 @@ describe('ConversationRepository', () => {
 
     it('should use default values and sort chronologically', async () => {
       // Arrange
-      const inputWithDefaults: IGetMessagesInput = { conversationId: 'conv-123' };
+      const inputWithDefaults: IGetMessagesInput = { conversationId: 'conv-123', userId: 1 };
       mockPrisma.conversationMessage.findMany.mockResolvedValue([]);
       mockPrisma.conversationMessage.count.mockResolvedValue(0);
 
