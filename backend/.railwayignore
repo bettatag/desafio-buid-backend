@@ -1,0 +1,19 @@
+# Railway ignore file
+node_modules
+.git
+.env*
+*.log
+coverage
+dist
+.vscode
+.idea
+*.md
+docs/
+README*
+DEPLOY*
+test/
+*.spec.ts
+*.test.ts
+*.backup
+.npm
+.eslintcache
