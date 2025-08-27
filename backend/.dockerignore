@@ -1,0 +1,54 @@
+# Node modules (será reinstalado)
+node_modules
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+
+# Environment files (configurado via Railway)
+.env*
+
+# Build outputs (será recriado)
+dist
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Development files
+*.md
+docs/
+README*
+DEPLOY*
+
+# Test files
+test/
+**/*.spec.ts
+**/*.test.ts
+
+# Development scripts
+*.ps1
+*.sh
+
+# Backup files
+*.backup
+Dockerfile.simple
+
+# Cache
+.npm
+.eslintcache

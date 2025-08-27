@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String   // Senha hasheada com bcrypt
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamento com conversas
+  conversations Conversation[]
+
+  @@map("users")
+}
+
+model EvolutionInstance {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // relações
+  instance   Instance?
+  hash       Hash?
+  settings   Settings?
+
+  @@map("evolution_instances")
+}
+
+model Instance {
+  id          String   @id @default(uuid())
+  instanceName String
+  instanceId   String
+  webhookWaBusiness String?
+  accessTokenWaBusiness String
+  status      String
+
+  evolutionInstanceId String   @unique
+  evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("instances")
+}
+
+model Hash {
+  id        String   @id @default(uuid())
+  apikey    String
+
+  evolutionInstanceId String   @unique
+  evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("hashes")
+}
+
+model Settings {
+  id            String   @id @default(uuid())
+  rejectCall    Boolean
+  msgCall       String
+  groupsIgnore  Boolean
+  alwaysOnline  Boolean
+  readMessages  Boolean
+  readStatus    Boolean
+  syncFullHistory Boolean
+
+  evolutionInstanceId String   @unique
+  evolutionInstance   EvolutionInstance @relation(fields: [evolutionInstanceId], references: [id])
+
+  @@map("settings")
+}
+
+// Novos models para conversas
+model Conversation {
+  id          String   @id @default(uuid())
+  title       String?  // Título da conversa (pode ser gerado automaticamente)
+  context     Json?    // Contexto personalizado da conversa
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  userId      Int
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    ConversationMessage[]
+
+  // Metadados
+  totalMessages    Int @default(0)
+  lastMessageAt    DateTime?
+  
+  @@map("conversations")
+}
+
+model ConversationMessage {
+  id          String   @id @default(uuid())
+  content     String   // Conteúdo da mensagem
+  role        MessageRole // USER, ASSISTANT, SYSTEM
+  metadata    Json?    // Metadados extras (tokens, model usado, etc.)
+  createdAt   DateTime @default(now())
+  
+  // Relacionamentos
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  // Campos específicos para OpenAI
+  openaiMessageId String? // ID da mensagem na OpenAI (se aplicável)
+  tokensUsed      Int?    // Tokens consumidos nesta mensagem
+  model           String? // Modelo OpenAI usado
+  finishReason    String? // Motivo de finalização da resposta
+  
+  @@map("conversation_messages")
+}
+
+enum MessageRole {
+  USER      // Mensagem do usuário
+  ASSISTANT // Resposta do bot/OpenAI
+  SYSTEM    // Mensagem de sistema/contexto
+}
