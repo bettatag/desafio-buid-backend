@@ -128,18 +128,6 @@ O **fluxo principal do n8n** foi construído para atuar como **Agente SDR**, rec
 Esse projeto base disponibilizou as ferramentas necessárias em produção para que o Desafio fosse melhor implementado.Além disso, permitiu a desmonstração prática de conhecimentos com a ferramenta N8N . O que vai além do que foi pedido no desafio.
 O resultado do projeot foi um atendente virtual que garante que cada cliente receba uma **primeira interação rápida e personalizada**, funcionando como filtro inteligente antes de direcionar para o time de vendas da **BUID**.  
 
----
-
-## ⚙️ BACKEND
-
-- API desenvolvida em **NestJS**  
-- Integração com **Evolution API** para comunicação via WhatsApp  
-- Integração com **OpenAI** para geração de respostas inteligentes  
-- Banco de dados: **PostgreSQL**  
-- ORM: **Prisma**  
-- Deploy: **Railway**
-
----
 
 ## 💻 FRONTEND
 
@@ -354,6 +342,20 @@ A interface implementada segue exatamente o design proposto no domínio de produ
 ---
 
 # 📋 **EXPLANAÇÃO TÉCNICA DETALHADA - IMPLEMENTAÇÃO DO DESAFIO**
+
+
+---
+
+## ⚙️ BACKEND
+
+- API desenvolvida em **NestJS**  
+- Integração com **Evolution API** para comunicação via WhatsApp  
+- Integração com **OpenAI** para geração de respostas inteligentes  
+- Banco de dados: **PostgreSQL**  
+- ORM: **Prisma**  
+- Deploy: **Railway**
+
+---
 
 ## 🎯 **Contexto do Desafio Técnico**
 
