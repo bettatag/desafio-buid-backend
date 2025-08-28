@@ -124,8 +124,9 @@ O **fluxo principal do n8n** foi construído para atuar como **Agente SDR**, rec
 
 ![Portainer](./portainer.png)  
 
-### 🎯 Objetivo do fluxo
-Esse processo garante que cada cliente receba uma **primeira interação rápida e personalizada**, funcionando como filtro inteligente antes de direcionar para o time de vendas da **BUID**.  
+### 🎯 Objetivo do Projeto BASE
+Esse projeto base disponibilizou as ferramentas necessárias em produção para que o Desafio fosse melhor implementado.Além disso, permitiu a desmonstração prática de conhecimentos com a ferramenta N8N . O que vai além do que foi pedido no desafio.
+O resultado do projeot foi um atendente virtual que garante que cada cliente receba uma **primeira interação rápida e personalizada**, funcionando como filtro inteligente antes de direcionar para o time de vendas da **BUID**.  
 
 ---
 
