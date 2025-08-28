@@ -1,0 +1,5 @@
+[33ma560dd5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Remove conflicting Railway config files - keep only Dockerfile and railway.json
+[33m11bc008[m docker ignore changed
+[33mc7817b1[m docker file changed so backend deploy works
+[33m16b80b0[m trying new deploy
+[33m3d5d8c4[m fixing backend deployment on railway
