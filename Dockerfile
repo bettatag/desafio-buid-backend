@@ -1,19 +1,13 @@
-# Dockerfile mínimo para Railway
-FROM node:18-alpine
+# Dockerfile simplificado para Railway
+FROM node:18
 
 WORKDIR /app
 
-# Copiar arquivos específicos primeiro
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
+# Copiar tudo de uma vez para evitar problemas de checksum
+COPY backend/ .
 
 # Instalar dependências
 RUN npm install
-
-# Copiar resto do código
-COPY backend/src ./src/
-COPY backend/nest-cli.json ./
-COPY backend/tsconfig*.json ./
 
 # Gerar Prisma Client
 RUN npx prisma generate
