@@ -110,9 +110,18 @@ O **fluxo principal do n8n** foi construído para atuar como **Agente SDR**, rec
 
 ### 🖼️ Prints do fluxo
 
-![Fluxo n8n](./n8n.png)  
+![Fluxo n8n](./n8n.png)
+
+### 🖼️ Dashboard Chatwoot
+
 ![Chatwoot](./chatwoot.png)  
-![Evolution Api](./evolution.png)  
+
+### 🖼️ Dashboard Evolution Api
+
+![Evolution Api](./evolution.png)
+
+### 🖼️ Dashboard Portainer
+
 ![Portainer](./portainer.png)  
 
 ### 🎯 Objetivo do fluxo
