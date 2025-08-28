@@ -1,10 +1,7 @@
-# Dockerfile para Railway - Versão Final
+# Dockerfile mínimo para Railway
 FROM node:18-alpine
 
 WORKDIR /app
-
-# Instalar dependências do sistema
-RUN apk add --no-cache openssl ca-certificates
 
 # Copiar arquivos específicos primeiro
 COPY backend/package*.json ./
@@ -23,9 +20,6 @@ RUN npx prisma generate
 
 # Build da aplicação
 RUN npm run build
-
-# Limpar cache npm
-RUN npm cache clean --force
 
 # Expor porta
 EXPOSE 3000
