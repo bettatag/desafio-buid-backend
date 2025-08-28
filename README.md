@@ -110,10 +110,10 @@ O **fluxo principal do n8n** foi construído para atuar como **Agente SDR**, rec
 
 ### 🖼️ Prints do fluxo
 
-![Fluxo n8n 1](./fluxo-n8n-1.png)  
-![Fluxo n8n 2](./fluxo-n8n-2.png)  
-![Fluxo n8n 3](./fluxo-n8n-3.png)  
-![Fluxo n8n 4](./fluxo-n8n-4.png)  
+![Fluxo n8n](./n8n.png)  
+![Chatwoot](./chatwoot.png)  
+![Evolution Api](./evolution.png)  
+![Portainer](./portainer.png)  
 
 ### 🎯 Objetivo do fluxo
 Esse processo garante que cada cliente receba uma **primeira interação rápida e personalizada**, funcionando como filtro inteligente antes de direcionar para o time de vendas da **BUID**.  
