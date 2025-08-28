@@ -38,6 +38,23 @@ export class AppController {
     }
   }
 
+  @Get('test')
+  @IsPublic()
+  @SkipThrottle()
+  @ApiOperation({ summary: 'Simple test endpoint' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns simple test response',
+  })
+  getTest(): object {
+    this.logger.log('GET /test endpoint called');
+    return { 
+      status: 'ok', 
+      message: 'API is working!', 
+      timestamp: new Date().toISOString() 
+    };
+  }
+
   @Get('health')
   @IsPublic()
   @SkipThrottle()
