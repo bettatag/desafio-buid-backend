@@ -408,7 +408,7 @@ describe('AuthUseCase', () => {
 📊 Branches: ~85% (fluxos condicionais)
 📊 Functions: ~95% (funções testadas)
 ```
-
+![Test Covarage](./tests-backend.png)
 ---
 
 ## 🌐 **Documentação Swagger Interativa**
