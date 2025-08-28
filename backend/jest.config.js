@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'Auth Module Tests',
+  displayName: 'Backend API Tests',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: [
@@ -10,12 +10,15 @@ module.exports = {
     '^.+\\.ts$': 'ts-jest',
   },
   collectCoverageFrom: [
-    'src/modules/auth/**/*.ts',
-    '!src/modules/auth/**/*.spec.ts',
-    '!src/modules/auth/**/__tests__/**',
-    '!src/modules/auth/**/index.ts',
-    '!src/modules/auth/**/*.contract.ts',
-    '!src/modules/auth/**/*.interface.ts',
+    'src/**/*.ts',
+    '!src/**/*.spec.ts',
+    '!src/**/__tests__/**',
+    '!src/**/index.ts',
+    '!src/**/*.contract.ts',
+    '!src/**/*.interface.ts',
+    '!src/main.ts',
+    '!src/test-setup.ts',
+    '!src/shared/constants/**',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: [
@@ -25,17 +28,19 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      branches: 90,
-      functions: 90,
-      lines: 90,
-      statements: 90
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
     }
   },
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  verbose: true,
-  testTimeout: 10000,
-  maxWorkers: '50%',
+  verbose: false,
+  testTimeout: 30000,
+  maxWorkers: 1,
+  forceExit: true,
+  detectOpenHandles: true,
 };

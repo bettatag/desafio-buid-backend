@@ -30,7 +30,7 @@ export class ConversationUseCase implements IConversationUseCase {
 
   async createConversation(input: ICreateConversationInput): Promise<IConversationOutput> {
     // Validações de negócio
-    if (!input.userId) {
+    if (input.userId === undefined || input.userId === null) {
       throw new HttpException('UserId é obrigatório', HttpStatus.BAD_REQUEST);
     }
 
@@ -49,6 +49,10 @@ export class ConversationUseCase implements IConversationUseCase {
 
       return conversation;
     } catch (error) {
+      // Se for uma HttpException, preservar o erro original
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException('Erro interno ao criar conversa', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
