@@ -1,10 +1,10 @@
-# Dockerfile simplificado para Railway
+# Dockerfile simples para Railway (executado da pasta backend)
 FROM node:18
 
 WORKDIR /app
 
-# Copiar tudo do backend de uma vez
-COPY backend/ .
+# Copiar arquivos do diretório atual (backend)
+COPY . .
 
 # Instalar dependências
 RUN npm install
