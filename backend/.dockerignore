@@ -86,8 +86,7 @@ Thumbs.db
 .gitignore
 
 # Docker
-Dockerfile*
-docker-compose*
+
 
 # Deployment files
 deploy.sh
