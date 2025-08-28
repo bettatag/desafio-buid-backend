@@ -68,42 +68,16 @@ export class AppController {
     this.logger.log('GET /health endpoint called');
 
     try {
-      const memoryUsage = process.memoryUsage();
-      const cpuUsage = process.cpuUsage();
-      
-      // Test database connection
-      let databaseStatus = 'connected';
-      try {
-        // Simple database connectivity test would go here
-        // For now, we'll assume it's connected
-        databaseStatus = 'connected';
-      } catch (error) {
-        databaseStatus = 'disconnected';
-        this.logger.error('Database health check failed:', error);
-      }
-
       const result = {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: Math.floor(process.uptime()),
-        version: '0.0.1',
+        version: '1.0.0',
         environment: process.env.NODE_ENV || 'development',
-        services: {
-          database: databaseStatus,
-          memory: {
-            used: Math.round(memoryUsage.heapUsed / 1024 / 1024),
-            total: Math.round(memoryUsage.heapTotal / 1024 / 1024),
-            external: Math.round(memoryUsage.external / 1024 / 1024),
-            unit: 'MB'
-          },
-          cpu: {
-            user: cpuUsage.user,
-            system: cpuUsage.system
-          }
-        }
+        message: 'Application is running successfully'
       };
       
-      this.logger.log(`Health check successful - Uptime: ${result.uptime}s, DB: ${databaseStatus}`);
+      this.logger.log(`Health check successful - Uptime: ${result.uptime}s`);
       return result;
     } catch (error) {
       this.logger.error(
