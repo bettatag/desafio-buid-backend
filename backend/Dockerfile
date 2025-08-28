@@ -16,8 +16,8 @@ RUN npm ci
 # Gerar Prisma Client
 RUN npx prisma generate
 
-# Copiar código fonte
-COPY . .
+# Copiar código fonte do backend
+COPY backend/ .
 
 # Build da aplicação
 RUN npm run build
@@ -34,9 +34,9 @@ RUN apk add --no-cache openssl ca-certificates dumb-init
 RUN addgroup -g 1001 -S nodejs && \
   adduser -S nestjs -u 1001
 
-# Copiar arquivos de dependências
-COPY package*.json ./
-COPY prisma ./prisma/
+# Copiar arquivos de dependências do backend
+COPY backend/package*.json ./
+COPY backend/prisma ./prisma/
 
 # Instalar apenas dependências de produção
 RUN npm ci --only=production && npm cache clean --force
